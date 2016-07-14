@@ -1,0 +1,60 @@
+isomorphic-fetch library to make the API call 
+the fetch method is going to return a promise and when the promise is resolve
+is going to give us a response object that has data in it
+.json() function on the response object will return the body of the request in
+json format, so that we can use in other place in the application
+ 
+ //fetch(url).then((resp) => resp.json());
+  
+ Note: OpenWeatherMap's API requires users to pay for https access. 
+ If you don't want to pay you can use the http://... address. 
+ Your browser will refuse to run the request if you visit your Cloud9 
+ application using https, so make sure to change https://___.c9users.io/
+ to http://___.c9users.io/.
+
+if we are in https page and make a request to http we are going to get an error
+and the request is going to be block
+
+we are making a cors(we are making a call to a url that have a different domain
+from the one we are currently visiting) request and some servers can block 
+this type of request to protect their data(google maps)
+
+fetch is async is going to return something right away and eventually fill data
+in, but the rest of the program keep runing until the data is in it
+
+*** don't do this because response is going to be undefined***
+*** because we are not weating until the promise is resolved****
+function getWeather(city){
+let response;
+fetch(url).then((resp) => resp.json())
+            .then((json) => response=json);
+return response;
+};
+We can try many things like above to get the data, but it is a wrong way,
+we are gonna end with undefined or pending promise.
+
+One way to get the data from the promise is using a saga(generator)
+If you yield a promise from your saga, saga is going to wait until the promise
+is resolved and when is resolved saga calls something to iterate the generator, 
+so the function will continue when the promise is resolved
+
+(the generator take the promise, stop the generator until the promise is resolved 
+and when the promise is resolved restarts the generator again)
+
+
+********Saga*******
+To start your saga you need to create some middleware
+You can think of sagas as process that run in the background of your application 
+watching for certain actions. We'll install Saga middleware that will watch 
+the reducer for actions and iterate a saga generator each time an action is 
+dispatched. It is important to note that the sagas will run after your reducer, 
+so they will only see the application state after an action is performed
+
+take effects tell the saga middleware to watch for actions and execute a 
+function (called a worker saga) after the reducer has changed the application state.
+
+The functions are called takeEvery() and takeLatest().
+The difference between the two is that takeEvery() will run the worker saga
+every time the action is dispatched, even if the process from the previous
+dispatch is still running. takeLatest() will not run a new worker saga
+if one is already running.
